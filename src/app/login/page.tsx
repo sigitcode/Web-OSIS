@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Mail, Lock, LogIn } from "lucide-react";
+import { ArrowLeft, Mail, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,11 +99,19 @@ export default function LoginPage() {
                 </div>
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   required
-                  className="w-full pl-10 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-accent-400/50 focus:border-accent-400/50 transition-all backdrop-blur-sm shadow-inner"
+                  className="w-full pl-10 pr-12 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-accent-400/50 focus:border-accent-400/50 transition-all backdrop-blur-sm shadow-inner"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-blue-300/60 hover:text-accent-400 transition-colors"
+                  aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
             </div>
 

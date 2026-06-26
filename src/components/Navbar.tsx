@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { navLinks } from "@/lib/data";
-import { Menu, X, GraduationCap } from "lucide-react";
+import { Menu, X, GraduationCap, LogIn } from "lucide-react";
+import Link from "next/link";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -94,6 +95,18 @@ export default function Navbar() {
                 {link.label}
               </button>
             ))}
+            <div className="h-6 w-px bg-white/20 mx-2 hidden lg:block" />
+            <Link
+              href="/login"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 shadow-md ${
+                scrolled
+                  ? "bg-accent-500 text-slate-900 hover:bg-accent-400 hover:-translate-y-0.5 shadow-accent-500/20"
+                  : "bg-white text-slate-900 hover:bg-slate-100 hover:-translate-y-0.5 shadow-black/10"
+              }`}
+            >
+              <LogIn className="w-4 h-4" />
+              Masuk
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -160,6 +173,16 @@ export default function Navbar() {
                 {link.label}
               </button>
             ))}
+            <div className="pt-4 mt-2 border-t border-slate-100">
+              <Link
+                href="/login"
+                onClick={() => setMobileOpen(false)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-slate-900 bg-accent-500 hover:bg-accent-400 transition-all duration-300 shadow-md shadow-accent-500/20"
+              >
+                <LogIn className="w-5 h-5" />
+                Masuk ke Portal OSIS
+              </Link>
+            </div>
           </div>
         </div>
       </div>

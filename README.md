@@ -1,21 +1,36 @@
-# Sistem Informasi OSIS SMK HKTI 2 Purwareja Klampok
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-Repository ini berisi source code untuk Sistem Informasi OSIS SMK HKTI 2 Purwareja Klampok. Struktur repository ini menggunakan pendekatan **Monorepo** yang memisahkan antara frontend dan backend.
+## Getting Started
 
-## Struktur Direktori
+First, run the development server:
 
-- `/frontend` - Berisi aplikasi frontend menggunakan **Next.js 15**.
-- `/backend` - (Segera hadir) Berisi API backend menggunakan **Laravel 12**.
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-## Panduan Deployment ke Vercel
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-Karena aplikasi Next.js berada di dalam folder `/frontend`, saat Anda mendeploy repository ini ke Vercel, Anda **WAJIB** mengatur **Root Directory**.
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-Langkah-langkah di Vercel:
-1. Saat melakukan **Import Project** dari GitHub di Vercel.
-2. Buka bagian **Framework Preset**, pastikan terdeteksi sebagai **Next.js**.
-3. Buka bagian **Root Directory**, klik **Edit**.
-4. Pilih folder `frontend` lalu simpan.
-5. Lanjutkan klik **Deploy**.
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-Jika pengaturan ini dilewatkan, Vercel akan mencoba membuild dari root repository yang tidak memiliki `package.json`, sehingga akan menghasilkan halaman kosong (Error 404 NOT_FOUND).
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

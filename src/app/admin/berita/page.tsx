@@ -99,7 +99,7 @@ export default function BeritaPage() {
                   <tr key={item.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="font-medium text-slate-800 flex items-center gap-2">
-                        {item.featured && <Star className="w-4 h-4 text-amber-400 fill-amber-400" title="Berita Sorotan" />}
+                        {item.featured && <span title="Berita Sorotan"><Star className="w-4 h-4 text-amber-400 fill-amber-400" /></span>}
                         {item.title}
                       </div>
                     </td>

@@ -56,8 +56,8 @@ export default async function Home() {
     ringkasan: stripHtml(b.content), // Strip HTML tags for clean summary
     tanggal: b.createdAt ? b.createdAt.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "",
     kategori: b.kategori,
-    featured: b.featured,
-    gambar: b.gambar,
+    featured: b.featured ?? false,
+    gambar: b.gambar ?? undefined,
   }));
 
   const formattedAgenda = dbAgenda.map(a => ({

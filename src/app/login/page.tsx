@@ -1,21 +1,48 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Mail, Lock, LogIn, Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Mail, Lock, LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    setError("");
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Login gagal");
+        setIsLoading(false);
+        return;
+      }
+
+      // Store user data in localStorage
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Redirect based on role
+      router.push(data.redirect);
+    } catch {
+      setError("Terjadi kesalahan koneksi");
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -70,6 +97,18 @@ export default function LoginPage() {
             </p>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 flex items-center gap-3 px-4 py-3 bg-red-500/20 border border-red-400/30 rounded-xl text-red-200 text-sm"
+            >
+              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+              {error}
+            </motion.div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-semibold text-blue-100 mb-2" htmlFor="email">
@@ -82,6 +121,8 @@ export default function LoginPage() {
                 <input
                   id="email"
                   type="text"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="Masukkan email atau NIS..."
                   required
                   className="w-full pl-10 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-accent-400/50 focus:border-accent-400/50 transition-all backdrop-blur-sm shadow-inner"
@@ -100,6 +141,8 @@ export default function LoginPage() {
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
                   className="w-full pl-10 pr-12 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-blue-200/40 focus:outline-none focus:ring-2 focus:ring-accent-400/50 focus:border-accent-400/50 transition-all backdrop-blur-sm shadow-inner"

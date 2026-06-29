@@ -1,51 +1,62 @@
 "use client";
 
-import { ekstrakurikuler } from "@/lib/data";
 import { SectionHeading, AnimateOnScroll } from "@/components/ui/shared";
 import { Users, Clock } from "lucide-react";
 
-export default function EkstrakurikulerSection() {
+interface EkskulItem {
+  id: number;
+  nama: string;
+  deskripsi: string;
+  anggota: number | null;
+  jadwal: string | null;
+  icon: string | null;
+}
+
+interface EkstrakurikulerSectionProps {
+  ekskulList: EkskulItem[];
+}
+
+export default function EkstrakurikulerSection({ ekskulList }: EkstrakurikulerSectionProps) {
+  if (!ekskulList || ekskulList.length === 0) return null;
+
   return (
-    <section id="ekskul" className="py-24 section-light relative">
+    <section id="ekskul" className="py-24 bg-white relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          accent="Kegiatan"
+          accent="Pengembangan Diri"
           title="Ekstrakurikuler"
-          subtitle="Berbagai kegiatan ekstrakurikuler untuk mengembangkan bakat, minat, dan keterampilan siswa."
+          subtitle="Wadah bagi siswa untuk mengembangkan bakat, minat, dan potensi diri di luar jam pelajaran akademik."
         />
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
-          {ekstrakurikuler.map((ekskul, index) => (
-            <AnimateOnScroll key={ekskul.id} delay={index * 80}>
-              <div className="group glass-card rounded-2xl p-6 hover:-translate-y-2 hover:shadow-xl transition-all duration-500 cursor-pointer relative overflow-hidden h-full flex flex-col">
-                {/* Hover accent */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 to-accent-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-
-                {/* Icon */}
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center mb-4 text-3xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-inner">
-                  {ekskul.icon}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {ekskulList.map((item, index) => (
+            <AnimateOnScroll key={item.id} delay={index * 100}>
+              <div className="group h-full bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-xl hover:shadow-primary-500/10 hover:border-primary-300 transition-all duration-300 flex flex-col">
+                <div className="w-16 h-16 rounded-2xl bg-primary-50 text-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-primary-600">
+                  <span className="group-hover:grayscale-[100%] group-hover:brightness-200 transition-all duration-300">{item.icon || '⭐'}</span>
                 </div>
-
-                {/* Name */}
-                <h3 className="font-bold text-slate-900 text-lg mb-2 group-hover:text-primary-700 transition-colors duration-300">
-                  {ekskul.nama}
+                
+                <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-primary-700 transition-colors">
+                  {item.nama}
                 </h3>
-
-                {/* Description */}
-                <p className="text-sm text-slate-500 leading-relaxed mb-4 flex-grow">
-                  {ekskul.deskripsi}
+                
+                <p className="text-slate-500 text-sm leading-relaxed flex-grow mb-6">
+                  {item.deskripsi}
                 </p>
-
-                {/* Stats */}
-                <div className="flex items-center gap-4 pt-3 border-t border-slate-100 text-xs text-slate-400">
-                  <span className="flex items-center gap-1.5">
-                    <Users className="w-3.5 h-3.5 text-primary-400" />
-                    <span className="font-semibold text-slate-600">{ekskul.anggota}</span> anggota
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-primary-400" />
-                    <span className="font-medium">{ekskul.jadwal.split(",")[0]}</span>
-                  </span>
+                
+                <div className="pt-4 border-t border-slate-100 space-y-3 mt-auto">
+                  <div className="flex items-center gap-3 text-sm text-slate-600">
+                    <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-primary-50 transition-colors">
+                      <Users className="w-4 h-4 text-slate-400 group-hover:text-primary-600" />
+                    </div>
+                    <span className="font-medium">{item.anggota} Anggota</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-600">
+                    <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-primary-50 transition-colors">
+                      <Clock className="w-4 h-4 text-slate-400 group-hover:text-primary-600" />
+                    </div>
+                    <span className="font-medium truncate">{item.jadwal || '-'}</span>
+                  </div>
                 </div>
               </div>
             </AnimateOnScroll>

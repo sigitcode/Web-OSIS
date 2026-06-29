@@ -1,9 +1,19 @@
 "use client";
 
-import { strukturOrganisasi } from "@/lib/data";
 import { SectionHeading, AnimateOnScroll } from "@/components/ui/shared";
 
-export default function StrukturSection() {
+interface AnggotaStruktur {
+  nama: string;
+  jabatan: string;
+  divisi: string;
+  avatar: string;
+}
+
+export default function StrukturSection({ struktur = [] }: { struktur?: AnggotaStruktur[] }) {
+  // Safe fallback to avoid errors if empty
+  const hasData = struktur && struktur.length > 0;
+  const topRow = hasData ? struktur.slice(0, 3) : [];
+  const bottomRow = hasData ? struktur.slice(3) : [];
   return (
     <section id="struktur" className="py-24 section-alt relative overflow-hidden">
       {/* Decorative elements */}
@@ -18,8 +28,9 @@ export default function StrukturSection() {
         />
 
         {/* Top row: Pembina + Ketua + Wakil */}
-        <div className="flex flex-wrap justify-center gap-6 mb-8">
-          {strukturOrganisasi.slice(0, 3).map((anggota, index) => (
+        {hasData && (
+          <div className="flex flex-wrap justify-center gap-6 mb-8">
+            {topRow.map((anggota, index) => (
             <AnimateOnScroll key={anggota.nama} delay={index * 100}>
               <div className="group w-56">
                 <div className="glass-card rounded-2xl p-6 text-center transition-all duration-500 hover:-translate-y-2 hover:shadow-xl relative overflow-hidden">
@@ -52,10 +63,12 @@ export default function StrukturSection() {
             </AnimateOnScroll>
           ))}
         </div>
+        )}
 
         {/* Bottom row: rest of the team */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-w-5xl mx-auto">
-          {strukturOrganisasi.slice(3).map((anggota, index) => (
+        {hasData && bottomRow.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-w-5xl mx-auto">
+            {bottomRow.map((anggota, index) => (
             <AnimateOnScroll key={anggota.nama} delay={300 + index * 100}>
               <div className="group">
                 <div className="glass-card rounded-2xl p-5 text-center transition-all duration-500 hover:-translate-y-2 hover:shadow-xl relative overflow-hidden">
@@ -76,6 +89,13 @@ export default function StrukturSection() {
             </AnimateOnScroll>
           ))}
         </div>
+        )}
+
+        {!hasData && (
+          <div className="text-center text-slate-500 py-12 bg-white/50 backdrop-blur-sm rounded-2xl border border-slate-200">
+            Belum ada data pengurus OSIS.
+          </div>
+        )}
       </div>
     </section>
   );

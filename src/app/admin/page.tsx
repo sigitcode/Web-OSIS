@@ -1,60 +1,69 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { 
   Users, 
   Newspaper, 
   CalendarDays, 
-  Activity,
+  AlertCircle,
   ArrowUpRight,
-  MoreVertical
+  MoreVertical,
+  Loader2
 } from "lucide-react";
 
-const stats = [
-  {
-    title: "Total Berita",
-    value: "156",
-    change: "+12%",
-    isPositive: true,
-    icon: Newspaper,
-    color: "text-blue-600",
-    bgColor: "bg-blue-100"
-  },
-  {
-    title: "Agenda Bulan Ini",
-    value: "14",
-    change: "+2",
-    isPositive: true,
-    icon: CalendarDays,
-    color: "text-amber-600",
-    bgColor: "bg-amber-100"
-  },
-  {
-    title: "Pengunjung",
-    value: "8,234",
-    change: "+18%",
-    isPositive: true,
-    icon: Users,
-    color: "text-emerald-600",
-    bgColor: "bg-emerald-100"
-  },
-  {
-    title: "Aktivitas User",
-    value: "432",
-    change: "-5%",
-    isPositive: false,
-    icon: Activity,
-    color: "text-purple-600",
-    bgColor: "bg-purple-100"
-  }
-];
+interface Stat {
+  title: string;
+  value: string;
+  change: string;
+  isPositive: boolean;
+}
 
-const recentActivities = [
-  { user: "Budi Santoso", action: "menambahkan berita baru", target: "Prestasi LKS Nasional 2024", time: "10 menit yang lalu" },
-  { user: "Siti Aminah", action: "memperbarui agenda", target: "Rapat Pleno OSIS", time: "1 jam yang lalu" },
-  { user: "Admin", action: "menghapus galeri", target: "Kegiatan Classmeet 2023", time: "3 jam yang lalu" },
-  { user: "Andi Saputra", action: "menambahkan ekstrakurikuler", target: "Pramuka", time: "Kemarin, 14:30" },
-  { user: "Budi Santoso", action: "mengubah struktur", target: "Divisi Humas", time: "Kemarin, 10:15" },
+interface Activity {
+  user: string;
+  action: string;
+  target: string;
+  time: string;
+}
+
+const iconMap = [Newspaper, CalendarDays, Users, AlertCircle];
+const colorMap = [
+  { color: "text-blue-600", bgColor: "bg-blue-100" },
+  { color: "text-amber-600", bgColor: "bg-amber-100" },
+  { color: "text-emerald-600", bgColor: "bg-emerald-100" },
+  { color: "text-purple-600", bgColor: "bg-purple-100" },
 ];
 
 export default function AdminDashboard() {
+  const [stats, setStats] = useState<Stat[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [chartData, setChartData] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/dashboard/admin");
+        const data = await res.json();
+        setStats(data.stats || []);
+        setActivities(data.recentActivities || []);
+        setChartData(data.chartData || []);
+      } catch (error) {
+        console.error("Failed to fetch dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -65,7 +74,8 @@ export default function AdminDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
-          const Icon = stat.icon;
+          const Icon = iconMap[index] || Newspaper;
+          const colors = colorMap[index] || colorMap[0];
           return (
             <div key={index} className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between">
@@ -73,8 +83,8 @@ export default function AdminDashboard() {
                   <p className="text-sm font-medium text-slate-500">{stat.title}</p>
                   <h3 className="text-2xl font-bold text-slate-800 mt-2">{stat.value}</h3>
                 </div>
-                <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                  <Icon className={`w-5 h-5 ${stat.color}`} />
+                <div className={`p-3 rounded-lg ${colors.bgColor}`}>
+                  <Icon className={`w-5 h-5 ${colors.color}`} />
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-2 text-sm">
@@ -82,7 +92,6 @@ export default function AdminDashboard() {
                   {stat.isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4 rotate-90" />}
                   {stat.change}
                 </span>
-                <span className="text-slate-400">vs bulan lalu</span>
               </div>
             </div>
           );
@@ -90,7 +99,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Mock Chart Section */}
+        {/* Chart Section */}
         <div className="xl:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-slate-800">Statistik Publikasi</h3>
@@ -100,8 +109,7 @@ export default function AdminDashboard() {
           </div>
           
           <div className="flex-1 flex items-end justify-between gap-2 h-64 mt-auto">
-            {/* Mock Bars */}
-            {[40, 70, 45, 90, 65, 85, 110, 60, 80, 50, 75, 100].map((height, i) => (
+            {chartData.map((height, i) => (
               <div key={i} className="w-full flex flex-col items-center gap-2 group cursor-pointer">
                 <div className="w-full bg-slate-100 rounded-t-sm relative flex items-end justify-center h-full">
                   <div 
@@ -123,24 +131,28 @@ export default function AdminDashboard() {
             <h3 className="text-lg font-bold text-slate-800">Aktivitas Terbaru</h3>
           </div>
           
-          <div className="space-y-6">
-            {recentActivities.map((activity, index) => (
-              <div key={index} className="flex gap-4">
-                <div className="relative mt-1">
-                  <div className="w-2.5 h-2.5 rounded-full bg-accent-500 ring-4 ring-accent-50 z-10 relative"></div>
-                  {index !== recentActivities.length - 1 && (
-                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-px h-full bg-slate-200"></div>
-                  )}
+          {activities.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-8">Belum ada aktivitas</p>
+          ) : (
+            <div className="space-y-6">
+              {activities.map((activity, index) => (
+                <div key={index} className="flex gap-4">
+                  <div className="relative mt-1">
+                    <div className="w-2.5 h-2.5 rounded-full bg-accent-500 ring-4 ring-accent-50 z-10 relative"></div>
+                    {index !== activities.length - 1 && (
+                      <div className="absolute top-3 left-1/2 -translate-x-1/2 w-px h-full bg-slate-200"></div>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-800">
+                      <span className="font-semibold">{activity.user}</span> {activity.action} <span className="font-medium text-primary-600">{activity.target}</span>
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">{activity.time}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-slate-800">
-                    <span className="font-semibold">{activity.user}</span> {activity.action} <span className="font-medium text-primary-600">{activity.target}</span>
-                  </p>
-                  <p className="text-xs text-slate-400 mt-1">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
           
           <button className="w-full mt-6 py-2 text-sm font-medium text-primary-600 hover:text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors">
             Lihat Semua Aktivitas

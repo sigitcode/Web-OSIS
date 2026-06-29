@@ -1,15 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { galeri } from "@/lib/data";
 import { SectionHeading, AnimateOnScroll } from "@/components/ui/shared";
 import { Camera, ZoomIn } from "lucide-react";
 
-export default function GaleriSection() {
+interface GaleriItem {
+  id: number;
+  judul: string;
+  kategori: string;
+  color: string;
+}
+
+interface GaleriSectionProps {
+  galeriList: GaleriItem[];
+}
+
+export default function GaleriSection({ galeriList }: GaleriSectionProps) {
   const [filter, setFilter] = useState("Semua");
-  const categories = ["Semua", "Kegiatan", "Lomba", "Upacara"];
+  
+  if (!galeriList || galeriList.length === 0) return null;
+
+  // Extract unique categories
+  const categories = ["Semua", ...Array.from(new Set(galeriList.map(g => g.kategori)))];
+  
   const filtered =
-    filter === "Semua" ? galeri : galeri.filter((g) => g.kategori === filter);
+    filter === "Semua" ? galeriList : galeriList.filter((g) => g.kategori === filter);
 
   return (
     <section id="galeri" className="py-24 section-alt relative">
@@ -46,7 +61,7 @@ export default function GaleriSection() {
               <div className="group relative aspect-square rounded-2xl overflow-hidden cursor-pointer">
                 {/* Gradient Background as Image Placeholder */}
                 <div
-                  className={`absolute inset-0 bg-gradient-to-br ${item.color} transition-transform duration-500 group-hover:scale-110`}
+                  className={`absolute inset-0 bg-gradient-to-br ${item.color || 'from-blue-500 to-blue-700'} transition-transform duration-500 group-hover:scale-110`}
                 />
                 <div className="absolute inset-0 dot-pattern opacity-20" />
 

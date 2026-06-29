@@ -1,70 +1,68 @@
 "use client";
 
-import { agenda } from "@/lib/data";
 import { SectionHeading, AnimateOnScroll } from "@/components/ui/shared";
-import { MapPin, Clock, CalendarDays } from "lucide-react";
+import { CalendarDays, MapPin, Clock } from "lucide-react";
 
-const tipeColors: Record<string, string> = {
-  Rutin: "bg-slate-100 text-slate-700",
-  Internal: "bg-primary-50 text-primary-700",
-  Kegiatan: "bg-emerald-50 text-emerald-700",
-  Lomba: "bg-amber-50 text-amber-700",
-  Upacara: "bg-purple-50 text-purple-700",
-};
+interface AgendaItem {
+  id: number;
+  judul: string;
+  tanggal: string;
+  waktu: string;
+  lokasi: string;
+  tipe: string;
+}
 
-export default function AgendaSection() {
+interface AgendaSectionProps {
+  agendaList: AgendaItem[];
+}
+
+export default function AgendaSection({ agendaList }: AgendaSectionProps) {
+  if (!agendaList || agendaList.length === 0) return null;
+
   return (
-    <section id="agenda" className="py-24 section-light relative">
+    <section id="agenda" className="py-24 bg-white relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           accent="Jadwal"
           title="Agenda Kegiatan"
-          subtitle="Jadwal kegiatan dan acara mendatang yang diselenggarakan oleh OSIS SMK HKTI 2."
+          subtitle="Jangan lewatkan berbagai kegiatan menarik yang akan diselenggarakan oleh OSIS."
         />
 
-        <div className="max-w-4xl mx-auto space-y-4">
-          {agenda.map((item, index) => (
+        <div className="max-w-4xl mx-auto space-y-6">
+          {agendaList.map((item, index) => (
             <AnimateOnScroll key={item.id} delay={index * 100}>
-              <div className="group glass-card rounded-2xl p-0 overflow-hidden hover:-translate-y-0.5 hover:shadow-xl transition-all duration-300 cursor-pointer">
-                <div className="flex flex-col sm:flex-row">
-                  {/* Date Badge */}
-                  <div className="sm:w-28 flex-shrink-0 bg-gradient-to-br from-primary-600 to-primary-800 p-4 flex sm:flex-col items-center justify-center gap-2 text-white">
-                    <CalendarDays className="w-5 h-5 sm:mb-1 opacity-80" />
-                    <div className="text-center">
-                      <div className="text-lg sm:text-2xl font-extrabold leading-none">
-                        {item.tanggal.split(" ")[0]}
-                      </div>
-                      <div className="text-xs sm:text-sm font-medium opacity-80 uppercase tracking-wider">
-                        {item.tanggal.split(" ").slice(1).join(" ")}
-                      </div>
-                    </div>
-                  </div>
+              <div className="group bg-white border border-slate-200 rounded-2xl p-6 hover:border-primary-300 hover:shadow-xl hover:shadow-primary-500/10 transition-all duration-300 cursor-pointer flex flex-col md:flex-row gap-6 items-center">
+                
+                {/* Date Block */}
+                <div className="flex-shrink-0 w-full md:w-32 bg-slate-50 rounded-xl p-4 text-center group-hover:bg-primary-50 transition-colors duration-300 border border-slate-100 group-hover:border-primary-100">
+                  <div className="text-primary-600 font-bold text-3xl mb-1">{item.tanggal.split(' ')[0]}</div>
+                  <div className="text-slate-500 text-sm font-medium">{item.tanggal.split(' ').slice(1).join(' ')}</div>
+                </div>
 
-                  {/* Content */}
-                  <div className="flex-grow p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
-                    <div className="flex-grow">
-                      <h3 className="font-bold text-slate-900 text-lg group-hover:text-primary-700 transition-colors duration-300">
-                        {item.judul}
-                      </h3>
-                      <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-slate-500">
-                        <span className="flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 text-primary-400" />
-                          {item.waktu}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 text-primary-400" />
-                          {item.lokasi}
-                        </span>
-                      </div>
-                    </div>
-                    <span
-                      className={`inline-flex items-center self-start px-3 py-1.5 rounded-xl text-xs font-bold tracking-wider uppercase ${
-                        tipeColors[item.tipe] || tipeColors["Rutin"]
-                      }`}
-                    >
-                      {item.tipe}
-                    </span>
+                {/* Content */}
+                <div className="flex-grow text-center md:text-left">
+                  <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider mb-3 group-hover:bg-primary-100 group-hover:text-primary-700 transition-colors">
+                    {item.tipe}
                   </div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-4 group-hover:text-primary-700 transition-colors">
+                    {item.judul}
+                  </h3>
+                  
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-6 text-sm text-slate-500">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-primary-500" />
+                      <span>{item.waktu}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-primary-500" />
+                      <span>{item.lokasi}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <div className="flex-shrink-0 hidden md:flex items-center justify-center w-12 h-12 rounded-full bg-slate-50 text-slate-400 group-hover:bg-primary-600 group-hover:text-white transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-12">
+                  <CalendarDays className="w-5 h-5" />
                 </div>
               </div>
             </AnimateOnScroll>

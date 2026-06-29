@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { 
   Newspaper, 
   CalendarDays, 
@@ -6,63 +9,70 @@ import {
   ArrowUpRight,
   MoreVertical,
   CheckCircle2,
-  Clock
+  Clock,
+  Loader2
 } from "lucide-react";
 
-const stats = [
-  {
-    title: "Publikasi Berita",
-    value: "24",
-    change: "+3 minggu ini",
-    isPositive: true,
-    icon: Newspaper,
-    color: "text-blue-600",
-    bgColor: "bg-blue-100"
-  },
-  {
-    title: "Agenda Mendatang",
-    value: "3",
-    change: "Terdekat: LDKS",
-    isPositive: true,
-    icon: CalendarDays,
-    color: "text-amber-600",
-    bgColor: "bg-amber-100"
-  },
-  {
-    title: "Program Kerja",
-    value: "12",
-    change: "8 Aktif, 4 Selesai",
-    isPositive: true,
-    icon: ClipboardList,
-    color: "text-emerald-600",
-    bgColor: "bg-emerald-100"
-  },
-  {
-    title: "Galeri & Media",
-    value: "86",
-    change: "+12 foto baru",
-    isPositive: true,
-    icon: ImagePlus,
-    color: "text-purple-600",
-    bgColor: "bg-purple-100"
-  }
-];
+interface Stat {
+  title: string;
+  value: string;
+  change: string;
+  isPositive: boolean;
+}
 
-const pendingTasks = [
-  { task: "Buat Laporan LPJ Kegiatan Classmeet", status: "pending", time: "Batas: 2 hari lagi" },
-  { task: "Update Galeri Lomba 17 Agustus", status: "completed", time: "Selesai kemarin" },
-  { task: "Draft Berita Kunjungan Industri", status: "pending", time: "Batas: Besok" },
-  { task: "Koordinasi Rapat Pleno", status: "completed", time: "Selesai 3 hari lalu" },
-];
+interface Task {
+  task: string;
+  status: string;
+  time: string;
+}
 
-const recentActivities = [
-  { action: "membuat draft berita", target: "Persiapan LDKS 2024", time: "2 jam yang lalu" },
-  { action: "mengunggah foto ke galeri", target: "Kegiatan Porseni", time: "5 jam yang lalu" },
-  { action: "memperbarui status program kerja", target: "Mading Sekolah", time: "Kemarin, 14:30" },
-  { action: "menambahkan pengumuman", target: "Jadwal Rapat Rutin", time: "Kemarin, 10:15" },
+interface Activity {
+  action: string;
+  target: string;
+  time: string;
+}
+
+const iconMap = [Newspaper, CalendarDays, ClipboardList, ImagePlus];
+const colorMap = [
+  { color: "text-blue-600", bgColor: "bg-blue-100" },
+  { color: "text-amber-600", bgColor: "bg-amber-100" },
+  { color: "text-emerald-600", bgColor: "bg-emerald-100" },
+  { color: "text-purple-600", bgColor: "bg-purple-100" },
 ];
 
 export default function PengurusDashboard() {
+  const [stats, setStats] = useState<Stat[]>([]);
+  const [pendingTasks, setPendingTasks] = useState<Task[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [chartData, setChartData] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/dashboard/pengurus");
+        const data = await res.json();
+        setStats(data.stats || []);
+        setPendingTasks(data.pendingTasks || []);
+        setActivities(data.recentActivities || []);
+        setChartData(data.chartData || []);
+      } catch (error) {
+        console.error("Failed to fetch dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -73,7 +83,8 @@ export default function PengurusDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
-          const Icon = stat.icon;
+          const Icon = iconMap[index] || Newspaper;
+          const colors = colorMap[index] || colorMap[0];
           return (
             <div key={index} className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between">
@@ -81,8 +92,8 @@ export default function PengurusDashboard() {
                   <p className="text-sm font-medium text-slate-500">{stat.title}</p>
                   <h3 className="text-2xl font-bold text-slate-800 mt-2">{stat.value}</h3>
                 </div>
-                <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                  <Icon className={`w-5 h-5 ${stat.color}`} />
+                <div className={`p-3 rounded-lg ${colors.bgColor}`}>
+                  <Icon className={`w-5 h-5 ${colors.color}`} />
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-2 text-sm">
@@ -97,7 +108,7 @@ export default function PengurusDashboard() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Mock Chart Section */}
+        {/* Chart Section */}
         <div className="xl:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-slate-800">Aktivitas Publikasi Konten</h3>
@@ -107,8 +118,7 @@ export default function PengurusDashboard() {
           </div>
           
           <div className="flex-1 flex items-end justify-between gap-2 h-64 mt-auto">
-            {/* Mock Bars */}
-            {[20, 35, 25, 60, 45, 55, 80, 40, 50, 30, 45, 70].map((height, i) => (
+            {chartData.map((height, i) => (
               <div key={i} className="w-full flex flex-col items-center gap-2 group cursor-pointer">
                 <div className="w-full bg-slate-100 rounded-t-sm relative flex items-end justify-center h-full">
                   <div 
@@ -131,23 +141,27 @@ export default function PengurusDashboard() {
               <h3 className="text-lg font-bold text-slate-800">Tugas & Agenda</h3>
             </div>
             
-            <div className="space-y-4">
-              {pendingTasks.map((task, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 bg-slate-50">
-                  {task.status === 'completed' ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-                  ) : (
-                    <Clock className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                  )}
-                  <div>
-                    <p className={`text-sm font-medium ${task.status === 'completed' ? 'text-slate-500 line-through' : 'text-slate-700'}`}>
-                      {task.task}
-                    </p>
-                    <p className="text-xs text-slate-400 mt-1">{task.time}</p>
+            {pendingTasks.length === 0 ? (
+              <p className="text-sm text-slate-400 text-center py-4">Belum ada tugas</p>
+            ) : (
+              <div className="space-y-4">
+                {pendingTasks.map((task, index) => (
+                  <div key={index} className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 bg-slate-50">
+                    {task.status === 'completed' ? (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                    ) : (
+                      <Clock className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                    )}
+                    <div>
+                      <p className={`text-sm font-medium ${task.status === 'completed' ? 'text-slate-500 line-through' : 'text-slate-700'}`}>
+                        {task.task}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-1">{task.time}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Recent Activity */}
@@ -156,24 +170,28 @@ export default function PengurusDashboard() {
               <h3 className="text-lg font-bold text-slate-800">Aktivitas Saya</h3>
             </div>
             
-            <div className="space-y-5">
-              {recentActivities.map((activity, index) => (
-                <div key={index} className="flex gap-3">
-                  <div className="relative mt-1">
-                    <div className="w-2 h-2 rounded-full bg-blue-500 ring-4 ring-blue-50 z-10 relative"></div>
-                    {index !== recentActivities.length - 1 && (
-                      <div className="absolute top-2 left-1/2 -translate-x-1/2 w-px h-full bg-slate-200"></div>
-                    )}
+            {activities.length === 0 ? (
+              <p className="text-sm text-slate-400 text-center py-4">Belum ada aktivitas</p>
+            ) : (
+              <div className="space-y-5">
+                {activities.map((activity, index) => (
+                  <div key={index} className="flex gap-3">
+                    <div className="relative mt-1">
+                      <div className="w-2 h-2 rounded-full bg-blue-500 ring-4 ring-blue-50 z-10 relative"></div>
+                      {index !== activities.length - 1 && (
+                        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-px h-full bg-slate-200"></div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-700">
+                        Anda {activity.action} <span className="font-semibold text-blue-600">{activity.target}</span>
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5">{activity.time}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-slate-700">
-                      Anda {activity.action} <span className="font-semibold text-blue-600">{activity.target}</span>
-                    </p>
-                    <p className="text-xs text-slate-400 mt-0.5">{activity.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

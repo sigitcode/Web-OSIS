@@ -55,6 +55,7 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed = false }: Side
         { label: "Role & Permission", href: "/admin/roles", icon: Shield },
         { label: "Jabatan", href: "/admin/jabatan", icon: Badge },
         { label: "Divisi", href: "/admin/divisi", icon: Briefcase },
+        { label: "Anggota OSIS", href: "/admin/anggota-osis", icon: Users },
         { label: "Program Kerja", href: "/admin/program-kerja", icon: ClipboardList },
         { label: "Ekstrakurikuler", href: "/admin/ekskul", icon: Trophy },
       ],

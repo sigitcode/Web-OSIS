@@ -4,6 +4,8 @@ import { heroStats } from "@/lib/data";
 import { AnimateOnScroll } from "@/components/ui/shared";
 import { Trophy, Users, LayoutGrid, Target, ChevronDown } from "lucide-react";
 
+import { useState, useEffect } from "react";
+
 const iconMap: Record<string, React.ReactNode> = {
   trophy: <Trophy className="w-6 h-6" />,
   users: <Users className="w-6 h-6" />,
@@ -11,18 +13,56 @@ const iconMap: Record<string, React.ReactNode> = {
   target: <Target className="w-6 h-6" />,
 };
 
-export default function HeroSection() {
+interface Banner {
+  id: number;
+  judul: string;
+  sub_judul: string | null;
+  gambar_url: string;
+}
+
+export default function HeroSection({ banners = [] }: { banners?: Banner[] }) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [banners.length]);
+
+  const activeBanner = banners[currentSlide];
+
   return (
     <section
       id="beranda"
       className="relative min-h-screen flex items-center justify-center hero-gradient overflow-hidden"
     >
-      {/* Animated background elements */}
+      {/* Animated background elements or Banner Image */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Floating circles */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400/10 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl animate-float-delayed" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-300/5 rounded-full blur-3xl animate-float-slow" />
+        {activeBanner ? (
+          <div className="absolute inset-0 z-0">
+            {banners.map((banner, idx) => (
+              <div 
+                key={banner.id}
+                className={`absolute inset-0 transition-opacity duration-1000 ${idx === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+              >
+                <img 
+                  src={banner.gambar_url} 
+                  alt={banner.judul} 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-slate-900/60 mix-blend-multiply" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400/10 rounded-full blur-3xl animate-float" />
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl animate-float-delayed" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-300/5 rounded-full blur-3xl animate-float-slow" />
+          </>
+        )}
         
         {/* Dot pattern overlay */}
         <div className="absolute inset-0 dot-pattern opacity-30" />
@@ -51,27 +91,31 @@ export default function HeroSection() {
 
         {/* Title */}
         <AnimateOnScroll delay={100}>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-6">
-            OSIS{" "}
-            <span className="relative">
-              <span className="bg-gradient-to-r from-accent-300 via-accent-400 to-accent-500 bg-clip-text text-transparent">
-                SMK HKTI 2
-              </span>
-              <span className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-accent-400 to-accent-500 rounded-full opacity-60" />
-            </span>
-            <br />
-            <span className="text-blue-100/90 text-3xl sm:text-4xl md:text-5xl lg:text-5xl">
-              Purwareja Klampok
-            </span>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-6 drop-shadow-xl">
+            {activeBanner ? activeBanner.judul : (
+              <>
+                OSIS{" "}
+                <span className="relative">
+                  <span className="bg-gradient-to-r from-accent-300 via-accent-400 to-accent-500 bg-clip-text text-transparent">
+                    SMK HKTI 2
+                  </span>
+                  <span className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-accent-400 to-accent-500 rounded-full opacity-60" />
+                </span>
+                <br />
+                <span className="text-blue-100/90 text-3xl sm:text-4xl md:text-5xl lg:text-5xl drop-shadow-md">
+                  Purwareja Klampok
+                </span>
+              </>
+            )}
           </h1>
         </AnimateOnScroll>
 
         {/* Subtitle */}
         <AnimateOnScroll delay={200}>
-          <p className="text-lg sm:text-xl text-blue-200/80 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Wadah kreativitas, kepemimpinan, dan prestasi siswa-siswi 
-            SMK HKTI 2 Purwareja Klampok Banjarnegara. Bersama membangun 
-            generasi unggul dan berkarakter.
+          <p className="text-lg sm:text-xl text-blue-100 max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-md font-medium">
+            {activeBanner ? (activeBanner.sub_judul || "") : (
+              "Wadah kreativitas, kepemimpinan, dan prestasi siswa-siswi SMK HKTI 2 Purwareja Klampok Banjarnegara. Bersama membangun generasi unggul dan berkarakter."
+            )}
           </p>
         </AnimateOnScroll>
 

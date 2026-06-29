@@ -1,74 +1,83 @@
 "use client";
 
-import { programKerja } from "@/lib/data";
-import { SectionHeading, GlassCard, AnimateOnScroll } from "@/components/ui/shared";
-import { Clock, CheckCircle2, CalendarClock, Zap } from "lucide-react";
+import { SectionHeading, AnimateOnScroll } from "@/components/ui/shared";
+import { CheckCircle2, Circle, Clock } from "lucide-react";
 
-const statusConfig: Record<string, { color: string; icon: React.ReactNode; bg: string }> = {
-  Selesai: {
-    color: "text-emerald-700",
-    icon: <CheckCircle2 className="w-3.5 h-3.5" />,
-    bg: "bg-emerald-50 border-emerald-200",
-  },
-  Aktif: {
-    color: "text-primary-700",
-    icon: <Zap className="w-3.5 h-3.5" />,
-    bg: "bg-primary-50 border-primary-200",
-  },
-  "Akan Datang": {
-    color: "text-amber-700",
-    icon: <CalendarClock className="w-3.5 h-3.5" />,
-    bg: "bg-amber-50 border-amber-200",
-  },
-};
+interface ProkerItem {
+  id: number;
+  judul: string;
+  deskripsi: string;
+  status: string | null;
+  kategori: string;
+  periode: string;
+}
 
-export default function ProgramKerjaSection() {
+interface ProgramKerjaSectionProps {
+  prokerList: ProkerItem[];
+}
+
+export default function ProgramKerjaSection({ prokerList }: ProgramKerjaSectionProps) {
+  if (!prokerList || prokerList.length === 0) return null;
+
   return (
-    <section id="program-kerja" className="py-24 section-light relative">
+    <section id="program-kerja" className="py-24 bg-white relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          accent="Program"
-          title="Program Kerja OSIS"
-          subtitle="Rencana kegiatan dan program yang dirancang untuk mengembangkan potensi siswa dan kemajuan sekolah."
+          accent="Aksi Nyata"
+          title="Program Kerja Unggulan"
+          subtitle="Berbagai program inovatif yang kami rancang untuk memajukan sekolah dan mengembangkan potensi siswa."
         />
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-          {programKerja.map((program, index) => {
-            const status = statusConfig[program.status] || statusConfig["Akan Datang"];
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {prokerList.map((item, index) => {
+            const isCompleted = item.status?.toLowerCase() === "selesai";
+            const isActive = item.status?.toLowerCase() === "aktif";
+            
             return (
-              <AnimateOnScroll key={program.id} delay={index * 100}>
-                <GlassCard className="h-full flex flex-col relative overflow-hidden group">
-                  {/* Status indicator line */}
-                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
-                    program.status === "Selesai"
-                      ? "from-emerald-400 to-emerald-500"
-                      : program.status === "Aktif"
-                      ? "from-primary-500 to-primary-600"
-                      : "from-amber-400 to-amber-500"
-                  }`} />
-
-                  <div className="flex items-start justify-between mb-3">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-bold tracking-wider uppercase">
-                      {program.kategori}
+              <AnimateOnScroll key={item.id} delay={index * 100}>
+                <div className="group h-full flex flex-col bg-white border border-slate-200 rounded-3xl p-8 hover:shadow-2xl hover:shadow-primary-500/10 hover:border-primary-200 transition-all duration-300">
+                  <div className="flex justify-between items-start mb-6">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold tracking-wider uppercase group-hover:bg-primary-50 group-hover:text-primary-700 transition-colors">
+                      {item.kategori}
                     </span>
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-xs font-semibold ${status.bg} ${status.color}`}>
-                      {status.icon}
-                      {program.status}
-                    </span>
+                    
+                    {/* Status Badge */}
+                    <div className="flex items-center gap-1.5" title={`Status: ${item.status}`}>
+                      {isCompleted ? (
+                        <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                      ) : isActive ? (
+                        <div className="relative flex h-5 w-5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-5 w-5 bg-blue-500"></span>
+                        </div>
+                      ) : (
+                        <Circle className="w-6 h-6 text-slate-300" />
+                      )}
+                    </div>
                   </div>
 
-                  <h3 className="text-lg font-bold text-slate-900 mb-2 leading-snug group-hover:text-primary-700 transition-colors duration-300">
-                    {program.judul}
+                  <h3 className="text-xl font-bold text-slate-900 mb-3 leading-snug group-hover:text-primary-600 transition-colors">
+                    {item.judul}
                   </h3>
-                  <p className="text-sm text-slate-500 leading-relaxed mb-4 flex-grow">
-                    {program.deskripsi}
+                  
+                  <p className="text-slate-500 leading-relaxed mb-6 flex-grow text-sm">
+                    {item.deskripsi}
                   </p>
 
-                  <div className="flex items-center gap-2 text-xs text-slate-400 pt-3 border-t border-slate-100">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span className="font-medium">{program.periode}</span>
+                  <div className="pt-6 border-t border-slate-100 flex items-center justify-between mt-auto">
+                    <div className="flex items-center gap-2 text-sm text-slate-400 font-medium">
+                      <Clock className="w-4 h-4" />
+                      {item.periode}
+                    </div>
+                    <span className={`text-xs font-bold ${
+                      isCompleted ? 'text-emerald-600' : 
+                      isActive ? 'text-blue-600' : 
+                      'text-slate-400'
+                    }`}>
+                      {item.status}
+                    </span>
                   </div>
-                </GlassCard>
+                </div>
               </AnimateOnScroll>
             );
           })}
